@@ -50,6 +50,14 @@ void sys_trace_idle_exit(void);
 void sys_trace_sys_init_enter(const struct init_entry *entry, int level);
 void sys_trace_sys_init_exit(const struct init_entry *entry, int level, int result);
 
+/* Mutex */
+void sys_trace_k_mutex_init(struct k_mutex *mutex, int ret);
+void sys_trace_k_mutex_lock_enter(struct k_mutex *mutex, k_timeout_t timeout);
+void sys_trace_k_mutex_lock_blocking(struct k_mutex *mutex, k_timeout_t timeout);
+void sys_trace_k_mutex_lock_exit(struct k_mutex *mutex, k_timeout_t timeout, int ret);
+void sys_trace_k_mutex_unlock_enter(struct k_mutex *mutex);
+void sys_trace_k_mutex_unlock_exit(struct k_mutex *mutex, int ret);
+
 struct gpio_callback;
 typedef uint8_t gpio_pin_t;
 typedef uint32_t gpio_flags_t;
@@ -211,12 +219,15 @@ void sys_trace_gpio_fire_callback_user(const struct device *port, struct gpio_ca
 #define sys_port_trace_k_sem_take_exit(sem, timeout, ret)
 #define sys_port_trace_k_sem_reset(sem)
 
-#define sys_port_trace_k_mutex_init(mutex, ret)
-#define sys_port_trace_k_mutex_lock_enter(mutex, timeout)
-#define sys_port_trace_k_mutex_lock_blocking(mutex, timeout)
-#define sys_port_trace_k_mutex_lock_exit(mutex, timeout, ret)
-#define sys_port_trace_k_mutex_unlock_enter(mutex)
-#define sys_port_trace_k_mutex_unlock_exit(mutex, ret)
+#define sys_port_trace_k_mutex_init(mutex, ret) sys_trace_k_mutex_init(mutex, ret)
+#define sys_port_trace_k_mutex_lock_enter(mutex, timeout)                                          \
+	sys_trace_k_mutex_lock_enter(mutex, timeout)
+#define sys_port_trace_k_mutex_lock_blocking(mutex, timeout)                                       \
+	sys_trace_k_mutex_lock_blocking(mutex, timeout)
+#define sys_port_trace_k_mutex_lock_exit(mutex, timeout, ret)                                      \
+	sys_trace_k_mutex_lock_exit(mutex, timeout, ret)
+#define sys_port_trace_k_mutex_unlock_enter(mutex)     sys_trace_k_mutex_unlock_enter(mutex)
+#define sys_port_trace_k_mutex_unlock_exit(mutex, ret) sys_trace_k_mutex_unlock_exit(mutex, ret)
 
 #define sys_port_trace_k_condvar_init(condvar, ret)
 #define sys_port_trace_k_condvar_signal_enter(condvar)

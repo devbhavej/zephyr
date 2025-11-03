@@ -76,6 +76,13 @@ void __weak sys_trace_gpio_fire_callbacks_enter_user(sys_slist_t *list, const st
 void __weak sys_trace_gpio_fire_callback_user(const struct device *port,
 					      struct gpio_callback *callback) {}
 
+void __weak sys_trace_k_mutex_init_user(struct k_mutex *mutex, int ret) {}
+void __weak sys_trace_k_mutex_lock_enter_user(struct k_mutex *mutex, k_timeout_t timeout) {}
+void __weak sys_trace_k_mutex_lock_blocking_user(struct k_mutex *mutex, k_timeout_t timeout) {}
+void __weak sys_trace_k_mutex_lock_exit_user(struct k_mutex *mutex, k_timeout_t timeout, int ret) {}
+void __weak sys_trace_k_mutex_unlock_enter_user(struct k_mutex *mutex) {}
+void __weak sys_trace_k_mutex_unlock_exit_user(struct k_mutex *mutex, int ret) {}
+
 void sys_trace_thread_create(struct k_thread *thread)
 {
 	sys_trace_thread_create_user(thread);
@@ -313,4 +320,29 @@ void sys_trace_gpio_fire_callbacks_enter(sys_slist_t *list, const struct device 
 void sys_trace_gpio_fire_callback(const struct device *port, struct gpio_callback *callback)
 {
 	sys_trace_gpio_fire_callback_user(port, callback);
+}
+
+void sys_trace_k_mutex_init(struct k_mutex *mutex, int ret)
+{
+	sys_trace_k_mutex_init_user(mutex, res);
+}
+void sys_trace_k_mutex_lock_enter(struct k_mutex *mutex, k_timeout_t timeout)
+{
+	sys_trace_k_mutex_lock_enter_user(mutex, timeout);
+}
+void sys_trace_k_mutex_lock_blocking(struct k_mutex *mutex, k_timeout_t timeout)
+{
+	sys_trace_k_mutex_lock_blocking_user(mutex, timeout);
+}
+void sys_trace_k_mutex_lock_exit(struct k_mutex *mutex, k_timeout_t timeout, int ret)
+{
+	sys_trace_k_mutex_lock_exit_user(mutex, timeout, ret);
+}
+void sys_trace_k_mutex_unlock_enter(struct k_mutex *mutex)
+{
+	sys_trace_k_mutex_unlock_enter_user(mutex);
+}
+void sys_trace_k_mutex_unlock_exit(struct k_mutex *mutex, int ret)
+{
+	sys_trace_k_mutex_unlock_exit_user(mutex, ret);
 }
