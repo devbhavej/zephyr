@@ -99,29 +99,10 @@ struct rtio_cqe_pool {
 };
 
 
-static inline struct rtio_cqe *rtio_cqe_pool_alloc(struct rtio_cqe_pool *pool)
-{
-	struct mpsc_node *node = mpsc_pop(&pool->free_q);
+struct rtio_cqe *rtio_cqe_pool_alloc(struct rtio_cqe_pool *pool);
 
-	if (node == NULL) {
-		return NULL;
-	}
+void rtio_cqe_pool_free(struct rtio_cqe_pool *pool, struct rtio_cqe *cqe);
 
-	struct rtio_cqe *cqe = CONTAINER_OF(node, struct rtio_cqe, q);
-
-	memset(cqe, 0, sizeof(struct rtio_cqe));
-
-	pool->pool_free--;
-
-	return cqe;
-}
-
-static inline void rtio_cqe_pool_free(struct rtio_cqe_pool *pool, struct rtio_cqe *cqe)
-{
-	mpsc_push(&pool->free_q, &cqe->q);
-
-	pool->pool_free++;
-}
 
 /* Do not try and reformat the macros */
 /* clang-format off */

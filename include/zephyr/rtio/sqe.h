@@ -753,17 +753,9 @@ static inline struct rtio_iodev_sqe *rtio_iodev_sqe_next(const struct rtio_iodev
  * @param[in] callback Callback called when SQE is signaled
  * @param[in] userdata User data passed to callback
  */
-static inline void rtio_iodev_sqe_await_signal(struct rtio_iodev_sqe *iodev_sqe,
-					       rtio_signaled_t callback,
-					       void *userdata)
-{
-	iodev_sqe->sqe.await.callback = callback;
-	iodev_sqe->sqe.await.userdata = userdata;
-
-	if (!atomic_cas(&iodev_sqe->sqe.await.ok, 0, 1)) {
-		callback(iodev_sqe, userdata);
-	}
-}
+void rtio_iodev_sqe_await_signal(struct rtio_iodev_sqe *iodev_sqe,
+				 rtio_signaled_t callback,
+				 void *userdata);
 
 /* Private structures and functions used for the pool of sqe structures */
 /** @cond ignore */
@@ -775,27 +767,10 @@ struct rtio_sqe_pool {
 	struct rtio_iodev_sqe *pool;
 };
 
-static inline struct rtio_iodev_sqe *rtio_sqe_pool_alloc(struct rtio_sqe_pool *pool)
-{
-	struct mpsc_node *node = mpsc_pop(&pool->free_q);
 
-	if (node == NULL) {
-		return NULL;
-	}
+struct rtio_iodev_sqe *rtio_sqe_pool_alloc(struct rtio_sqe_pool *pool);
 
-	struct rtio_iodev_sqe *iodev_sqe = CONTAINER_OF(node, struct rtio_iodev_sqe, q);
-
-	pool->pool_free--;
-
-	return iodev_sqe;
-}
-
-static inline void rtio_sqe_pool_free(struct rtio_sqe_pool *pool, struct rtio_iodev_sqe *iodev_sqe)
-{
-	mpsc_push(&pool->free_q, &iodev_sqe->q);
-
-	pool->pool_free++;
-}
+void rtio_sqe_pool_free(struct rtio_sqe_pool *pool, struct rtio_iodev_sqe *iodev_sqe);
 
 #if CONFIG_RTIO_SQE_PLACEMENT_DTCM
 #define RTIO_SQE_MEM Z_GENERIC_SECTION(".dtcm_bss") static
